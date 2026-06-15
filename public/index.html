@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Team Activity Monitor</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f8f9fb;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #app {
+      width: 100%;
+      max-width: 720px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 16px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 16px;
+    }
+
+    .logo {
+      width: 34px;
+      height: 34px;
+      background: #4f46e5;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .logo svg { width: 18px; height: 18px; color: #fff; }
+
+    header h1 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    header p {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-top: 1px;
+    }
+
+    #chat-window {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
+    }
+
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      scroll-behavior: smooth;
+    }
+
+    /* Empty state */
+    #empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 6px;
+      padding: 40px 20px;
+    }
+
+    #empty-state .icon {
+      width: 44px;
+      height: 44px;
+      background: #ede9fe;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+
+    #empty-state .icon svg { width: 22px; height: 22px; color: #4f46e5; }
+
+    #empty-state h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    #empty-state p {
+      font-size: 0.83rem;
+      color: #9ca3af;
+      line-height: 1.5;
+      max-width: 280px;
+    }
+
+    .hint-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+      margin-top: 14px;
+    }
+
+    .hint-chip {
+      padding: 5px 12px;
+      background: #f9fafb;
+      color: #4b5563;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      border: 1px solid #e5e7eb;
+      transition: all 0.15s;
+    }
+
+    .hint-chip:hover {
+      background: #ede9fe;
+      color: #4f46e5;
+      border-color: #c4b5fd;
+    }
+
+    /* Messages */
+    .message {
+      display: flex;
+      flex-direction: column;
+      max-width: 82%;
+    }
+
+    .message.user { align-self: flex-end; align-items: flex-end; }
+    .message.bot  { align-self: flex-start; align-items: flex-start; }
+    .message.error { align-self: flex-start; align-items: flex-start; }
+    .message.thinking { align-self: flex-start; align-items: flex-start; }
+
+    .bubble {
+      padding: 10px 14px;
+      border-radius: 12px;
+      line-height: 1.55;
+      font-size: 0.875rem;
+      white-space: pre-wrap;
+    }
+
+    .message.user    .bubble { background: #4f46e5; color: #fff; border-bottom-right-radius: 3px; }
+    .message.bot     .bubble { background: #f3f4f6; color: #111827; border-bottom-left-radius: 3px; }
+    .message.error   .bubble { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; border-bottom-left-radius: 3px; }
+    .message.thinking .bubble { background: #f3f4f6; color: #9ca3af; font-style: italic; border-bottom-left-radius: 3px; }
+
+    /* Input */
+    #input-area {
+      padding: 12px 14px;
+      border-top: 1px solid #f3f4f6;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    #query-input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 0.875rem;
+      outline: none;
+      background: #f9fafb;
+      color: #111827;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    #query-input::placeholder { color: #9ca3af; }
+
+    #query-input:focus {
+      border-color: #a5b4fc;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(79,70,229,0.08);
+    }
+
+    #send-btn {
+      width: 38px;
+      height: 38px;
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+
+    #send-btn:hover    { background: #4338ca; }
+    #send-btn:disabled { background: #c7d2fe; cursor: not-allowed; }
+    #send-btn svg      { width: 15px; height: 15px; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        </svg>
+      </div>
+      <div>
+        <h1>Team Activity Monitor</h1>
+        <p>JIRA &middot; GitHub</p>
+      </div>
+    </header>
+
+    <div id="chat-window">
+      <div id="messages">
+        <div id="empty-state">
+          <div class="icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+          <h2>Ask about any team member</h2>
+          <p>Get recent commits, pull requests, and JIRA tickets in one place.</p>
+          <div class="hint-chips">
+            <button class="hint-chip" onclick="fillQuery(this)">What is Kavitha working on?</button>
+            <button class="hint-chip" onclick="fillQuery(this)">Show me John's recent commits</button>
+            <button class="hint-chip" onclick="fillQuery(this)">Status of PROJ-42?</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="input-area">
+        <input
+          id="query-input"
+          type="text"
+          placeholder="Ask about a team member…"
+          autocomplete="off"
+        />
+        <button id="send-btn" onclick="sendQuery()" title="Send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

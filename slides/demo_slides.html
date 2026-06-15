@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team Activity Monitor — Demo Presentation</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0f1117;
+    color: #e8eaf0;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .deck {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+  }
+
+  .slide {
+    display: none;
+    width: 100%;
+    height: 100%;
+    padding: 60px 80px;
+    flex-direction: column;
+    justify-content: center;
+    position: absolute;
+    top: 0; left: 0;
+    animation: fadeIn 0.25s ease;
+  }
+
+  .slide.active { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Typography ── */
+  .label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #6366f1;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-size: 52px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #f8fafc;
+    margin-bottom: 12px;
+  }
+
+  h2 {
+    font-size: 38px;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 28px;
+    line-height: 1.2;
+  }
+
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #818cf8;
+    margin-bottom: 8px;
+    margin-top: 20px;
+  }
+
+  .subtitle {
+    font-size: 20px;
+    color: #94a3b8;
+    font-weight: 400;
+    line-height: 1.5;
+    max-width: 700px;
+  }
+
+  .meta {
+    font-size: 15px;
+    color: #475569;
+    margin-top: 32px;
+  }
+
+  /* ── Layout helpers ── */
+  .cols {
+    display: grid;
+    gap: 32px;
+    flex: 1;
+    align-items: start;
+  }
+
+  .cols-2 { grid-template-columns: 1fr 1fr; }
+  .cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  /* ── Cards ── */
+  .card {
+    background: #1e2130;
+    border: 1px solid #2d3148;
+    border-radius: 12px;
+    padding: 24px 28px;
+  }
+
+  .card.accent {
+    border-color: #6366f1;
+    background: #1a1c2e;
+  }
+
+  .card h3 { margin-top: 0; }
+
+  /* ── Bullets ── */
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  ul li {
+    font-size: 16px;
+    color: #cbd5e1;
+    padding: 6px 0;
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  ul li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: #6366f1;
+    font-weight: 600;
+  }
+
+  ul.check li::before { content: '✓'; color: #22c55e; }
+  ul.star  li::before { content: '★'; color: #f59e0b; }
+  ul.dot   li::before { content: '·'; color: #94a3b8; font-size: 20px; top: 3px; }
+
+  ul li strong { color: #e2e8f0; }
+
+  /* ── Code / flow ── */
+  .flow {
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    font-size: 13px;
+    background: #0d0f1a;
+    border: 1px solid #2d3148;
+    border-radius: 10px;
+    padding: 20px 24px;
+    line-height: 2;
+    color: #94a3b8;
+  }
+
+  .flow .step    { color: #e2e8f0; }
+  .flow .ai      { color: #818cf8; font-weight: 600; }
+  .flow .fast    { color: #22c55e; font-weight: 600; }
+  .flow .det     { color: #f59e0b; font-weight: 600; }
+  .flow .gate    { color: #fb923c; font-weight: 600; }
+  .flow .comment { color: #475569; }
+
+  /* ── Badges / pills ── */
+  .badge {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-right: 6px;
+  }
+
+  .badge.green  { background: #14532d; color: #86efac; }
+  .badge.purple { background: #2e1065; color: #c4b5fd; }
+  .badge.amber  { background: #451a03; color: #fcd34d; }
+
+  /* ── Table ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+  }
+
+  th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #6366f1;
+    border-bottom: 1px solid #2d3148;
+  }
+
+  td {
+    padding: 10px 14px;
+    color: #cbd5e1;
+    border-bottom: 1px solid #1e2130;
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  td:first-child { color: #e2e8f0; font-weight: 500; }
+
+  .done { color: #22c55e; font-weight: 600; font-size: 13px; }
+  .bonus { color: #f59e0b; font-weight: 600; font-size: 13px; }
+
+  /* ── Highlight box ── */
+  .callout {
+    background: #1a1c2e;
+    border-left: 3px solid #6366f1;
+    border-radius: 0 8px 8px 0;
+    padding: 14px 20px;
+    font-size: 15px;
+    color: #cbd5e1;
+    line-height: 1.6;
+    margin-top: 12px;
+  }
+
+  .callout strong { color: #a5b4fc; }
+
+  /* ── Nav bar ── */
+  .nav {
+    position: fixed;
+    bottom: 24px;
+    right: 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    z-index: 100;
+  }
+
+  .nav-count {
+    font-size: 13px;
+    color: #475569;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .nav-btn {
+    background: #1e2130;
+    border: 1px solid #2d3148;
+    color: #94a3b8;
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .nav-btn:hover { background: #2d3148; color: #e2e8f0; }
+
+  /* ── Progress bar ── */
+  .progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    background: #6366f1;
+    transition: width 0.3s ease;
+    z-index: 100;
+  }
+
+  /* ── Slide-specific ── */
+
+  /* Slide 1 — Title */
+  #s1 {
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding-bottom: 80px;
+    background: radial-gradient(ellipse at 70% 30%, #1a1c3a 0%, #0f1117 60%);
+  }
+
+  #s1 h1 { font-size: 56px; margin-bottom: 16px; }
+  #s1 .subtitle { font-size: 18px; }
+
+  /* Slide 7 — Technical challenges */
+  #s7 h3 { margin-top: 0; }
+
+  /* ── Query sequence ── */
+  .query-list { list-style: none; padding: 0; }
+  .query-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid #1e2130;
+    font-size: 15px;
+    color: #cbd5e1;
+  }
+  .query-list li:last-child { border-bottom: none; }
+  .query-list li::before { display: none; }
+  .qnum {
+    min-width: 24px;
+    height: 24px;
+    background: #2d3148;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #818cf8;
+    margin-top: 1px;
+  }
+  .qtext { flex: 1; }
+  .qtext .q  { color: #f8fafc; font-style: italic; }
+  .qtext .r  { color: #94a3b8; font-size: 13px; margin-top: 2px; }
+
+  /* next bullet improvements */
+  table td.feature { font-size: 14px; }
+
+  /* ── Architecture pipeline (s4) ── */
+  .fast-path-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #061209;
+    border: 1px solid #22c55e;
+    border-radius: 8px;
+    padding: 9px 16px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: #86efac;
+  }
+
+  .fpr-label {
+    background: #14532d;
+    color: #86efac;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  .fpr-arrow { color: #22c55e; font-weight: 600; }
+
+  .fpr-note {
+    margin-left: auto;
+    color: #475569;
+    font-size: 12px;
+  }
+
+  .arch-pipe {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin-bottom: 18px;
+  }
+
+  .pipe-conn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 28px;
+    color: #6366f1;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .pipe-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    padding: 12px 10px;
+    border: 1px solid #2d3148;
+    background: #1e2130;
+    text-align: center;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .pn-tag {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-bottom: 5px;
+    white-space: nowrap;
+  }
+
+  .pn-name   { font-size: 13px; font-weight: 600; color: #e2e8f0; white-space: nowrap; }
+  .pn-detail { font-size: 11px; color: #5a6a82; margin-top: 3px; white-space: nowrap; }
+
+  .pn-neutral { border-color: #475569; }
+  .pn-neutral .pn-name { color: #94a3b8; }
+
+  .pn-ai { border-color: #818cf8; background: #1a1c2e; }
+  .pn-ai .pn-tag  { background: #2e1065; color: #c4b5fd; }
+  .pn-ai .pn-name { color: #c4b5fd; }
+
+  .pn-gate { border-color: #f97316; background: #1a0e05; }
+  .pn-gate .pn-tag  { background: #431407; color: #fdba74; }
+  .pn-gate .pn-name { color: #fed7aa; }
+
+  .pn-route { border-color: #f59e0b; background: #1a1500; }
+  .pn-route .pn-tag  { background: #451a03; color: #fcd34d; }
+  .pn-route .pn-name { color: #fde68a; }
+
+  .pn-det { border-color: #22c55e; background: #061209; }
+  .pn-det .pn-tag  { background: #14532d; color: #86efac; }
+  .pn-det .pn-name { color: #86efac; }
+
+  .pipe-split {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    justify-content: center;
+    flex: 0 0 90px;
+  }
+
+  .api-pill {
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    border: 1px solid;
+  }
+
+  .api-jira { border-color: #6366f1; color: #a5b4fc; background: #1a1c2e; }
+  .api-gh   { border-color: #475569; color: #94a3b8; background: #0d1018; }
+
+  /* ── Stage popup ── */
+  .popup-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 7, 15, 0.78);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+  }
+  .popup-overlay.open { display: flex; }
+
+  .popup-box {
+    background: #1e2130;
+    border: 1px solid #2d3148;
+    border-radius: 14px;
+    width: 520px;
+    max-width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: fadeIn 0.2s ease;
+  }
+  .popup-box.popup-ai    { border-color: #818cf8; }
+  .popup-box.popup-gate  { border-color: #f97316; }
+  .popup-box.popup-route { border-color: #f59e0b; }
+  .popup-box.popup-det   { border-color: #22c55e; }
+
+  .popup-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid #2d3148;
+  }
+
+  .popup-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #f8fafc;
+    flex: 1;
+  }
+
+  .popup-close {
+    background: none;
+    border: none;
+    color: #475569;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    line-height: 1;
+    transition: color 0.15s;
+  }
+  .popup-close:hover { color: #e2e8f0; }
+
+  .popup-badge {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: 3px;
+  }
+  .popup-badge.badge-ai    { background: #2e1065; color: #c4b5fd; }
+  .popup-badge.badge-gate  { background: #431407; color: #fdba74; }
+  .popup-badge.badge-route { background: #451a03; color: #fcd34d; }
+  .popup-badge.badge-det   { background: #14532d; color: #86efac; }
+
+  .popup-body { padding: 18px 22px 22px; }
+  .popup-body p { font-size: 14px; color: #94a3b8; line-height: 1.7; margin-bottom: 10px; }
+
+  .pop-section {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #475569;
+    margin: 14px 0 6px;
+  }
+
+  .popup-body ul { padding: 0; }
+  .popup-body ul li { font-size: 14px; color: #cbd5e1; padding: 4px 0 4px 16px; line-height: 1.55; }
+  .popup-body ul li::before { content: '·'; font-size: 18px; top: 2px; color: #6366f1; }
+  .popup-body ul ul { padding-left: 12px; margin-top: 4px; }
+  .popup-body ul ul li::before { content: '–'; font-size: 14px; color: #475569; top: 4px; }
+
+  .popup-body code {
+    background: #0d0f1a;
+    border: 1px solid #2d3148;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: 'Cascadia Code', Consolas, monospace;
+    font-size: 12px;
+    color: #a5b4fc;
+  }
+
+  /* clickable nodes */
+  [data-node] { cursor: pointer; }
+  .pipe-node[data-node]      { transition: box-shadow 0.15s; }
+  .pn-neutral[data-node]:hover { box-shadow: 0 0 0 2px rgba(71,85,105,0.6); }
+  .pn-ai[data-node]:hover      { box-shadow: 0 0 0 2px rgba(129,140,248,0.55); }
+  .pn-gate[data-node]:hover    { box-shadow: 0 0 0 2px rgba(249,115,22,0.55); }
+  .pn-route[data-node]:hover   { box-shadow: 0 0 0 2px rgba(245,158,11,0.55); }
+  .pn-det[data-node]:hover     { box-shadow: 0 0 0 2px rgba(34,197,94,0.55); }
+  .pipe-split[data-node] { transition: opacity 0.15s; }
+  .pipe-split[data-node]:hover .api-pill { box-shadow: 0 0 0 1px rgba(99,102,241,0.45); }
+  .fast-path-row[data-node] { transition: border-color 0.15s; }
+  .fast-path-row[data-node]:hover { border-color: #86efac; }
+
+  .arch-hint { font-size: 11px; color: #2a3545; text-align: right; margin: -8px 0 10px; }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<div class="deck">
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 1 — Title
+  ══════════════════════════════════════════ -->
+  <div class="slide" id="s1">
+    <div class="label">Autonomize AI — Take-Home Assignment</div>
+    <h1>Team Activity Monitor</h1>
+    <p class="subtitle">
+      A natural language chatbot that answers engineering manager questions
+      about what team members are working on — pulling live data from JIRA and GitHub.
+    </p>
+    <p class="meta">Kavithadevi Perumal &nbsp;·&nbsp; 2-Day Sprint &nbsp;·&nbsp; June 2026</p>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 2 — The Problem
+  ══════════════════════════════════════════ -->
+  <div class="slide" id="s2">
+    <div class="label">The Problem</div>
+    <h2>"What is Balu working on?"</h2>
+    <div class="cols cols-2" style="max-width:900px; margin-top: 8px;">
+      <div class="card">
+        <h3>Before</h3>
+        <ul>
+          <li>Open JIRA → search assignee → scan tickets</li>
+          <li>Open GitHub → find profile → scan commits + PRs</li>
+          <li>Manual context-switching for every team member</li>
+          <li>No combined view — mental aggregation by the manager</li>
+        </ul>
+      </div>
+      <div class="card accent">
+        <h3>After — one question</h3>
+        <ul class="check">
+          <li>Live JIRA tickets with priority + time estimates</li>
+          <li>Recent commits and active pull requests</li>
+          <li>Repos contributed to — no extra API call</li>
+          <li>Single natural language response in seconds</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout" style="max-width:900px; margin-top:24px;">
+      Engineering managers can't answer <strong>"what is X working on?"</strong> without opening two tabs and doing manual lookups. This chatbot closes that gap.
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 4 — System Architecture
+  ══════════════════════════════════════════ -->
+  <div class="slide" id="s4">
+    <div class="label">Architecture</div>
+    <h2>System Design</h2>
+
+    <div class="fast-path-row" data-node="fastpath">
+      <span class="fpr-label">Fast path</span>
+      <span class="fpr-arrow">PROJ-123 detected</span>
+      <span>→ regex match → <strong>get_ticket</strong> → Response</span>
+      <span class="fpr-note">LLM never called</span>
+    </div>
+
+    <div class="arch-pipe">
+      <div class="pipe-node pn-neutral" data-node="query">
+        <div class="pn-name">User Query</div>
+      </div>
+      <div class="pipe-conn">→</div>
+      <div class="pipe-node pn-ai" data-node="ai">
+        <div class="pn-tag">AI · 1 call</div>
+        <div class="pn-name">OpenAI Extract</div>
+        <div class="pn-detail">intent + member_name</div>
+      </div>
+      <div class="pipe-conn">→</div>
+      <div class="pipe-node pn-gate" data-node="allowlist">
+        <div class="pn-tag">Gate</div>
+        <div class="pn-name">Allowlist</div>
+        <div class="pn-detail">_NAME_RE regex</div>
+      </div>
+      <div class="pipe-conn">→</div>
+      <div class="pipe-node pn-gate" data-node="validate">
+        <div class="pn-tag">Gate</div>
+        <div class="pn-name">validate_member</div>
+        <div class="pn-detail">→ ResolvedIdentity</div>
+      </div>
+      <div class="pipe-conn">→</div>
+      <div class="pipe-node pn-route" data-node="router">
+        <div class="pn-tag">Route</div>
+        <div class="pn-name">Intent Router</div>
+        <div class="pn-detail">explicit if / elif</div>
+      </div>
+      <div class="pipe-conn">→</div>
+      <div class="pipe-split" data-node="apis">
+        <div class="api-pill api-jira">JIRA API</div>
+        <div class="api-pill api-gh">GitHub API</div>
+      </div>
+      <div class="pipe-conn">→</div>
+      <div class="pipe-node pn-det" data-node="template">
+        <div class="pn-tag">Deterministic</div>
+        <div class="pn-name">Template Format</div>
+        <div class="pn-detail">no AI · no hallucination</div>
+      </div>
+      <div class="pipe-conn">→</div>
+      <div class="pipe-node pn-neutral" data-node="response">
+        <div class="pn-name">Response</div>
+      </div>
+    </div>
+
+    <p class="arch-hint">click any stage for details</p>
+
+    <div class="cols cols-2" style="gap:20px;">
+      <div class="callout">
+        <strong>AI at the front only:</strong> One call extracts intent + name. Everything after is deterministic — eliminates hallucination risk in output. Cuts AI calls from 2 → 1.
+      </div>
+      <div class="callout">
+        <strong>Explicit ID contract:</strong> <code>ResolvedIdentity</code> carries both IDs. Workers receive them directly — no hidden cache dependency.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 5 — 3 Key Design Decisions
+  ══════════════════════════════════════════ -->
+  <div class="slide" id="s5">
+    <div class="label">Design Decisions</div>
+    <h2>3 Key Design Decisions</h2>
+    <div class="cols cols-3" style="margin-top: 8px;">
+
+      <div class="card">
+        <h3>1 · Intent-based routing</h3>
+        <ul class="dot">
+          <li>Each intent calls only the API it needs</li>
+          <li>Ask about commits → JIRA never called</li>
+          <li>Saves rate limits, cuts latency</li>
+          <li>Adding Slack = one new module + one new intent + one branch</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>2 · Partial results over hard failures</h3>
+        <ul class="dot">
+          <li>User exists in JIRA but not GitHub?</li>
+          <li>Response shows JIRA tickets — not "user not found"</li>
+          <li><code>found_set</code> controls which fetchers run</li>
+          <li>Omits sections entirely rather than showing "None"</li>
+        </ul>
+      </div>
+
+      <div class="card accent">
+        <h3>3 · Validation as single gate + explicit IDs</h3>
+        <ul class="dot">
+          <li>Only <code>validate_member</code> says "user not found" — no API client makes that call</li>
+          <li><strong>Intent-aware:</strong> resolves only what the intent needs — <code>get_commits</code> → GitHub login only; <code>get_jira</code> → JIRA accountId only; <code>get_activity</code> → both</li>
+          <li><strong>Failure logic matches intent:</strong> <code>get_activity</code> fails only if found in neither system; single-system intents fail if not found in that specific system</li>
+          <li>Returns <code>ResolvedIdentity</code> — passed to every downstream call; nothing downstream ever re-resolves identity</li>
+        </ul>
+      </div>
+
+    </div>
+    <div class="callout" style="margin-top: 24px;">
+      Intent dispatch is an explicit <strong>if/elif/elif/elif/else</strong> chain.
+      The <strong>else</strong> is a safety net — future intents missed in the router
+      hit a warning log + friendly message, not a silent crash.
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 6 — Beyond the Spec
+  ══════════════════════════════════════════ -->
+  <div class="slide" id="s6b">
+    <div class="label">Beyond the Spec</div>
+    <h2>What I Added in 2 Days</h2>
+    <div class="cols cols-2" style="gap: 24px; margin-top: 8px; align-items: start;">
+
+      <div class="card">
+        <h3 style="margin-top:0;">Smarter Querying</h3>
+        <ul class="star">
+          <li>5 intent types — targeted API calls instead of always fetching everything</li>
+          <li>Regex fast-path for ticket lookup — LLM never called for PROJ-123 style queries</li>
+          <li>Conversation context — pronoun follow-ups ("show me her commits") resolved via last_member</li>
+          <li>Ambiguous name detection — surfaces candidate list instead of guessing</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-top:0;">Resilience & Performance</h3>
+        <ul class="star">
+          <li>Concurrent JIRA + GitHub fetch — total latency ~max(t1,t2) not sum</li>
+          <li>Partial results — JIRA-only if GitHub unresolved; sections omitted rather than "None"</li>
+          <li>Identity caching — resolution API calls made once per member per process; second query for the same person is instant, no network call</li>
+          <li>Priority levels + time estimates surfaced in every JIRA response</li>
+        </ul>
+      </div>
+
+    </div>
+    <div class="callout" style="margin-top: 24px;">
+      Security: <strong>rate limiting</strong> (10 req/min per IP) · <strong>optional API key auth</strong> on /chat · <strong>allowlist regex</strong> on LLM-extracted member_name · <strong>no secrets in code</strong>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 7 — Live Demo
+  ══════════════════════════════════════════ -->
+  <div class="slide" id="s6">
+    <div class="label">Live Demo</div>
+    <h2>Demo Query Sequence</h2>
+    <ul class="query-list" style="margin-top: 16px; max-width: 860px;">
+      <li>
+        <div class="qnum">1</div>
+        <div class="qtext">
+          <div class="q">"What is Kavithadevi working on?"</div>
+          <div class="r">→ get_activity · fans out JIRA + commits + PRs concurrently · shows all sections</div>
+        </div>
+      </li>
+      <li>
+        <div class="qnum">2</div>
+        <div class="qtext">
+          <div class="q">"Show me her commits"</div>
+          <div class="r">→ get_commits · GitHub only · JIRA never called</div>
+        </div>
+      </li>
+      <li>
+        <div class="qnum">3</div>
+        <div class="qtext">
+          <div class="q">"What are her open PRs?"</div>
+          <div class="r">→ get_prs · pronoun "her" resolved via last_member context</div>
+        </div>
+      </li>
+      <li>
+        <div class="qnum">4</div>
+        <div class="qtext">
+          <div class="q">"What is the status of FULFIL-28?"</div>
+          <div class="r">→ get_ticket · regex fast-path · LLM never called</div>
+        </div>
+      </li>
+      <li>
+        <div class="qnum">5</div>
+        <div class="qtext">
+          <div class="q">"What is PROJ-999?"</div>
+          <div class="r">→ "Ticket PROJ-999 was not found. Check the key and try again." · graceful 404</div>
+        </div>
+      </li>
+      <li>
+        <div class="qnum">6</div>
+        <div class="qtext">
+          <div class="q">"What is John Smith working on?"</div>
+          <div class="r">→ validate_member fails · "John Smith was not found in JIRA or GitHub."</div>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 7 — Technical Challenges
+  ══════════════════════════════════════════ -->
+  <div class="slide" id="s7">
+    <div class="label">Technical Challenges</div>
+    <h2>Three Technical Challenges</h2>
+    <div class="cols cols-2" style="gap: 28px; margin-top: 8px; align-items: start;">
+
+      <div>
+        <div class="label" style="margin-bottom: 10px;">1 · Identity Resolution Across Disparate Systems</div>
+        <div class="card" style="margin-bottom: 16px;">
+          <h3>The problem</h3>
+          <ul class="dot">
+            <li>JIRA needs <strong>accountId</strong> — not a display name</li>
+            <li>GitHub needs a <strong>login handle</strong> — not a profile name</li>
+            <li>Users query in natural language — partial names, aliases</li>
+            <li>git user.name ≠ GitHub profile name → false matches</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Resolution strategy</h3>
+          <ul class="dot">
+            <li>Pass 1: <code>fullname:"Kavitha Perumal" user:org</code></li>
+            <li>Pass 2 fallback: <code>Kavitha Perumal in:login</code> → CamelCase handles</li>
+            <li>JIRA: <code>/user/search?query=name</code> → accountId</li>
+            <li>>1 match + no exact → <code>AmbiguousNameError</code> surfaced to user</li>
+          </ul>
+        </div>
+      </div>
+
+      <div>
+        <div class="label" style="margin-bottom: 10px;">2 · Race Condition in Concurrent Resolution</div>
+        <div class="card accent" style="margin-bottom: 16px;">
+          <h3>The problem &amp; fix</h3>
+          <ul class="dot">
+            <li>For <code>get_activity</code>, commits + PRs workers run concurrently — both would race to resolve the same user simultaneously</li>
+            <li>Fix: <code>validate_member</code> resolves both IDs <em>before</em> the thread pool starts — workers receive <code>ResolvedIdentity</code> directly, race eliminated</li>
+          </ul>
+        </div>
+        <div class="label" style="margin-bottom: 10px;">3 · LLM Output as Untrusted Value</div>
+        <div class="card">
+          <h3>The problem &amp; fix</h3>
+          <ul class="dot">
+            <li>LLM extracts member_name from free-form query — but can hallucinate or invent a non-name value</li>
+            <li>Fix: allowlist regex <code>^[A-Za-z\s'\-\.]{1,100}$</code> validates it looks like a human name before any downstream use</li>
+            <li>User injection already contained by structured JSON output — LLM returns only intent + member_name</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 8 — What I'd Build Next
+  ══════════════════════════════════════════ -->
+  <div class="slide" id="s8">
+    <div class="label">Future Roadmap</div>
+    <h2>What I'd Build Next</h2>
+    <table style="margin-top: 16px; max-width: 900px;">
+      <thead>
+        <tr><th>Feature</th><th>Why it matters</th><th>What's needed</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Time-range queries</td>
+          <td>"Last 2 weeks" instead of hardcoded 7-day window</td>
+          <td>Parser prompt + date param in API calls</td>
+        </tr>
+        <tr>
+          <td>Team-level queries</td>
+          <td>"What is the platform team working on?" — manager use case</td>
+          <td>New intent + loop over member roster</td>
+        </tr>
+        <tr>
+          <td>Slack bot wrapper</td>
+          <td>Zero-friction access — meets engineers where they are</td>
+          <td>Slack Bolt + /chat endpoint reuse</td>
+        </tr>
+        <tr>
+          <td>Persistent cache (Redis)</td>
+          <td>Module-level dict clears on restart, breaks multi-worker</td>
+          <td>Swap <code>_cache</code> dict for Redis client</td>
+        </tr>
+        <tr>
+          <td>Parallel validation gateway</td>
+          <td>JIRA + GitHub resolve sequentially — 2 serial network calls on cache miss</td>
+          <td><code>ThreadPoolExecutor(max_workers=2)</code> inside gateway</td>
+        </tr>
+        <tr>
+          <td>asyncio + aiohttp</td>
+          <td>Eliminates GIL context-switch overhead at scale</td>
+          <td>Flask → FastAPI, requests → httpx (~3–4 hrs)</td>
+        </tr>
+        <tr>
+          <td>Thin main.py — extract orchestrator</td>
+          <td>main.py currently handles HTTP, intent routing, and orchestration — three responsibilities in one file</td>
+          <td>Extract routing + orchestration into <code>dispatcher.py</code>; main.py becomes a pure HTTP wrapper</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="callout" style="max-width: 900px; margin-top: 20px;">
+      These are the natural next steps to take this from a prototype to a production-ready tool.
+    </div>
+  </div>
+
+
+</div><!-- /deck -->
+
+<!-- Stage detail popup -->
+<div class="popup-overlay" id="popup-overlay">
+  <div class="popup-box" id="popup-box">
+    <div class="popup-header">
+      <span class="popup-badge" id="popup-badge"></span>
+      <span class="popup-title" id="popup-title"></span>
+      <button class="popup-close" id="popup-close">&#x2715;</button>
+    </div>
+    <div class="popup-body" id="popup-body"></div>
+  </div>
+</div>
+
+<!-- Navigation -->
+<div class="nav">
+  <span class="nav-count" id="counter">1 / 9</span>
+  <button class="nav-btn" id="prev" title="Previous (←)">‹</button>
+  <button class="nav-btn" id="next" title="Next (→)">›</button>
+</div>
+
+<script>
+  // ── Slide navigation ──
+  const slides = document.querySelectorAll('.slide');
+  const progress = document.getElementById('progress');
+  const counter = document.getElementById('counter');
+  let current = 0;
+
+  function go(n) {
+    slides[current].classList.remove('active');
+    current = Math.max(0, Math.min(n, slides.length - 1));
+    slides[current].classList.add('active');
+    counter.textContent = (current + 1) + ' / ' + slides.length;
+    progress.style.width = ((current + 1) / slides.length * 100) + '%';
+  }
+
+  document.getElementById('next').addEventListener('click', () => go(current + 1));
+  document.getElementById('prev').addEventListener('click', () => go(current - 1));
+
+  // ── Stage popup ──
+  const overlay  = document.getElementById('popup-overlay');
+  const popBox   = document.getElementById('popup-box');
+  const popTitle = document.getElementById('popup-title');
+  const popBadge = document.getElementById('popup-badge');
+  const popBody  = document.getElementById('popup-body');
+
+  const popupData = {
+    query: {
+      title: 'User Query',
+      html: `
+        <p>Entry point for all queries. Accepts free-form natural language — no required syntax.</p>
+        <div class="pop-section">Two paths from here</div>
+        <ul>
+          <li><strong>Fast path:</strong> query contains a JIRA ticket key (e.g. <code>PROJ-123</code>) → regex intercepts → <code>get_ticket</code> called directly. No LLM, no member resolution.</li>
+          <li><strong>Main path:</strong> all other queries proceed to OpenAI extraction → identity resolution → intent dispatch.</li>
+        </ul>
+      `
+    },
+    fastpath: {
+      type: 'det', badge: 'FAST PATH',
+      title: 'Regex Bypass',
+      html: `
+        <p>Short-circuits the main pipeline when a JIRA ticket key is detected in the query.</p>
+        <div class="pop-section">How it works</div>
+        <ul>
+          <li>Pattern <code>[A-Z]+-\\d+</code> runs on every query <em>before</em> any LLM call</li>
+          <li>On match: <code>get_ticket(key)</code> called directly → result returned immediately</li>
+          <li>No intent extraction, no member resolution, no thread pool</li>
+        </ul>
+        <div class="pop-section">Why it matters</div>
+        <ul>
+          <li>Saves 1 LLM call for a very common manager query pattern</li>
+          <li>Graceful 404: "Ticket PROJ-999 was not found. Check the key and try again."</li>
+        </ul>
+      `
+    },
+    ai: {
+      type: 'ai', badge: 'AI · 1 CALL',
+      title: 'OpenAI Extract',
+      html: `
+        <p>A single GPT call converts the free-form query into structured JSON: <code>{"intent": "...", "member_name": "..."}</code>.</p>
+        <div class="pop-section">Extracted intents</div>
+        <ul>
+          <li><code>get_activity</code> — full view: JIRA tickets + commits + PRs</li>
+          <li><code>get_commits</code> — GitHub commits only; JIRA never called</li>
+          <li><code>get_prs</code> — open pull requests only; JIRA never called</li>
+          <li><code>get_jira</code> — JIRA tickets only; GitHub never called</li>
+          <li><code>unknown</code> — friendly clarification message returned</li>
+        </ul>
+        <div class="pop-section">Pronoun handling</div>
+        <ul>
+          <li>"Show me her commits" → <code>member_name: null</code> → falls back to <code>last_member</code> from session context</li>
+        </ul>
+        <p style="margin-top:12px;">Output is treated as <strong>untrusted input</strong> — passes through Allowlist Gate before any downstream use.</p>
+      `
+    },
+    allowlist: {
+      type: 'gate', badge: 'GATE',
+      title: 'Allowlist Validation',
+      html: `
+        <p>Guards against LLM hallucination or prompt injection in the extracted <code>member_name</code>.</p>
+        <div class="pop-section">Validation rule</div>
+        <ul>
+          <li>Regex: <code>^[A-Za-z\\s'\\-\\.]{1,100}$</code></li>
+          <li>Accepts: human names — letters, spaces, hyphens, apostrophes, periods</li>
+          <li>Rejects: anything that doesn't look like a person's name</li>
+        </ul>
+        <div class="pop-section">Why this matters</div>
+        <ul>
+          <li>LLM output is untrusted — could return a script tag, SQL snippet, or invented value</li>
+          <li>Hard rejection: user-facing error returned immediately; downstream code never runs</li>
+          <li>Second defense layer — structured JSON output already contains injection, this catches edge cases</li>
+        </ul>
+      `
+    },
+    validate: {
+      type: 'gate', badge: 'GATE',
+      title: 'validate_member',
+      html: `
+        <p>The core identity resolution layer. Translates a natural language name into the system identifiers each downstream API needs.</p>
+        <div class="pop-section">Resolution steps</div>
+        <ul>
+          <li>JIRA: <code>/user/search?query=name</code> → <code>accountId</code></li>
+          <li>GitHub Pass 1: <code>fullname:"Name" user:org</code> → <code>login</code></li>
+          <li>GitHub Pass 2 fallback: <code>Name in:login</code> for CamelCase handles</li>
+          <li>&gt;1 match + no exact hit → <code>AmbiguousNameError</code> → candidate list surfaced to user</li>
+        </ul>
+        <div class="pop-section">Returns</div>
+        <ul>
+          <li><code>ResolvedIdentity(display_name, jira_account_id, github_login)</code></li>
+          <li><code>found_set</code> gates which APIs run downstream:
+            <ul>
+              <li><code>{'jira', 'github'}</code> → both APIs called concurrently</li>
+              <li><code>{'jira'}</code> → JIRA shown; GitHub section omitted — not shown as "None"</li>
+              <li><code>{}</code> → "not found" error returned immediately; no API calls made</li>
+            </ul>
+          </li>
+        </ul>
+        <div class="pop-section">Caching</div>
+        <ul>
+          <li>Resolved IDs cached per session — the <code>name → ResolvedIdentity</code> mapping is stored; identity resolution API calls are not repeated for the same member</li>
+          <li>JIRA ticket and GitHub commit data is <strong>not</strong> cached — fetched live on every query</li>
+          <li>All downstream API calls receive IDs directly — no re-resolution needed for any intent, not just the thread pool</li>
+        </ul>
+      `
+    },
+    router: {
+      type: 'route', badge: 'ROUTE',
+      title: 'Intent Router',
+      html: `
+        <p>Dispatches to the correct data-fetching worker. Explicit <code>if/elif/elif/elif/else</code> chain — no implicit fallthrough.</p>
+        <div class="pop-section">Dispatch table</div>
+        <ul>
+          <li><code>get_activity</code> → JIRA + GitHub concurrently via <code>ThreadPoolExecutor</code></li>
+          <li><code>get_commits</code> → GitHub only; JIRA never called</li>
+          <li><code>get_prs</code> → GitHub only; JIRA never called</li>
+          <li><code>get_jira</code> → JIRA only; GitHub never called</li>
+          <li><code>unknown</code> → friendly clarification message returned</li>
+        </ul>
+        <div class="pop-section">Design notes</div>
+        <ul>
+          <li>Workers receive <code>ResolvedIdentity</code> IDs directly — already resolved before dispatch</li>
+          <li><code>else</code> branch: logs a warning + friendly message for any future intent missed in the router</li>
+        </ul>
+      `
+    },
+    apis: {
+      type: 'route', badge: 'CONCURRENT',
+      title: 'JIRA + GitHub APIs',
+      html: `
+        <p>Data fetchers — called concurrently for <code>get_activity</code>, independently for targeted intents.</p>
+        <div class="pop-section">JIRA</div>
+        <ul>
+          <li>Fetches tickets assigned to <code>accountId</code></li>
+          <li>Surfaces: key, summary, status, priority, time estimate</li>
+        </ul>
+        <div class="pop-section">GitHub</div>
+        <ul>
+          <li>Fetches recent commits, open PRs, and repos contributed to</li>
+          <li>Uses <code>github_login</code> from <code>ResolvedIdentity</code> directly</li>
+        </ul>
+        <div class="pop-section">Partial results via found_set</div>
+        <ul>
+          <li>If <code>github</code> not in <code>found_set</code> → GitHub fetcher never invoked</li>
+          <li>If <code>jira</code> not in <code>found_set</code> → JIRA fetcher never invoked</li>
+          <li>Missing sections omitted entirely from the response — never shown as "None"</li>
+        </ul>
+      `
+    },
+    template: {
+      type: 'det', badge: 'DETERMINISTIC',
+      title: 'Template Format',
+      html: `
+        <p>Pure Python string formatting — no AI, no LLM call. Deterministic output every time.</p>
+        <div class="pop-section">Why no AI here</div>
+        <ul>
+          <li>AI at the output stage introduces hallucination risk — could fabricate ticket details or misattribute commits</li>
+          <li>Templates guarantee every data point came directly from JIRA or GitHub</li>
+          <li>Cuts AI calls from 2 → 1 vs a "ask LLM to summarise" approach</li>
+        </ul>
+        <div class="pop-section">Formatting rules</div>
+        <ul>
+          <li>Sections omitted entirely when data is empty — no "None", no "N/A"</li>
+          <li>Priority levels and time estimates surfaced inline</li>
+        </ul>
+      `
+    },
+    response: {
+      title: 'Response',
+      html: `
+        <p>Final output returned to the frontend. All user-facing messages share the same HTTP shape.</p>
+        <div class="pop-section">Response contract</div>
+        <ul>
+          <li><code>HTTP 200</code> + <code>{"response": "..."}</code> — all user-facing messages, including graceful errors like "not found"</li>
+          <li><code>HTTP 4xx</code> + <code>{"error": "..."}</code> — system or auth failures only</li>
+          <li>Frontend branches on <code>res.ok</code> — clean separation of user messages vs system errors</li>
+        </ul>
+      `
+    }
+  };
+
+  function openPopup(key) {
+    const d = popupData[key];
+    if (!d) return;
+    popTitle.textContent = d.title;
+    popBox.className = 'popup-box' + (d.type ? ' popup-' + d.type : '');
+    if (d.badge) {
+      popBadge.textContent = d.badge;
+      popBadge.className = 'popup-badge' + (d.type ? ' badge-' + d.type : '');
+      popBadge.style.display = '';
+    } else {
+      popBadge.style.display = 'none';
+    }
+    popBody.innerHTML = d.html;
+    overlay.classList.add('open');
+  }
+
+  function closePopup() { overlay.classList.remove('open'); }
+
+  document.getElementById('popup-close').addEventListener('click', closePopup);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closePopup(); });
+
+  document.getElementById('s4').addEventListener('click', e => {
+    const el = e.target.closest('[data-node]');
+    if (el) openPopup(el.dataset.node);
+  });
+
+  document.addEventListener('keydown', e => {
+    if (overlay.classList.contains('open')) {
+      if (e.key === 'Escape') { e.preventDefault(); closePopup(); }
+      return;
+    }
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+      e.preventDefault(); go(current + 1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault(); go(current - 1);
+    }
+  });
+
+  go(0);
+</script>
+</body>
+</html>
