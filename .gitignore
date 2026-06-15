@@ -3,3 +3,9 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+
+# Internal docs — local only
+ARCHITECTURE.md
+PROJECT_NOTES.md
+Updated_FWD_FS_Assignment_Autonomize.pdf
+docs/
