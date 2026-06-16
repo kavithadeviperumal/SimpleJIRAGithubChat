@@ -32,6 +32,7 @@ _limiter = Limiter(get_remote_address, app=app, storage_uri='memory://')
 _executor = None
 # Allowlist: only letters, spaces, apostrophes, hyphens, dots — blocks injection and LLM hallucinations
 _NAME_RE = re.compile(r"^[A-Za-z\s'\-\.]{1,100}$")
+_PRONOUNS = {'he', 'she', 'they', 'him', 'her', 'his', 'their', 'them', 'it'}
 
 
 def _shutdown_executor():
@@ -67,7 +68,8 @@ def chat():
         last_member = data.get('last_member')
         parsed = parse_query(query)
         intent = parsed.get('intent', 'unknown')
-        member_name = parsed.get('member_name') or last_member
+        extracted_name = parsed.get('member_name') or ''
+        member_name = (None if extracted_name.lower() in _PRONOUNS else extracted_name) or last_member
         ticket_key = parsed.get('ticket_key')
 
         if intent == 'unknown':

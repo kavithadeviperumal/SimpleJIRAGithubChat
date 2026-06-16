@@ -1,0 +1,13 @@
+venv/
+.env
+.git/
+__pycache__/
+*.pyc
+*.pyo
+tests/
+docs/
+slides/
+*.pdf
+ARCHITECTURE.md
+PROJECT_NOTES.md
+README.md
